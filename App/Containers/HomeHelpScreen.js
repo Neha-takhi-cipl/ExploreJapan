@@ -5,14 +5,14 @@ import { connect } from 'react-redux'
 // import YourActions from '../Redux/YourRedux'
 
 // Styles
-import styles from './Styles/AllListsScreenStyle'
+import styles from './Styles/HomeHelpScreenStyle'
 
-class AllListsScreen extends Component {
+class HomeHelpScreen extends Component {
   render () {
     return (
       <ScrollView style={styles.container}>
         <KeyboardAvoidingView behavior='position'>
-          <Text>AllListsScreen</Text>
+          <Text>HomeHelpScreen</Text>
         </KeyboardAvoidingView>
       </ScrollView>
     )
@@ -29,4 +29,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AllListsScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(HomeHelpScreen)
