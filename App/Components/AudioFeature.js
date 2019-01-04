@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-// import PropTypes from 'prop-types';
-import { View, Text } from 'react-native'
-import styles from './Styles/FeatureStyle'
-import { Text, View } from 'react-native'
+import PropTypes from 'prop-types';
+import { View, Text, TouchableOpacity } from 'react-native'
+import styles from './Styles/AudioFeatureStyle'
+
 import AudioPlayer from 'react-native-play-audio';
 
 const Button = ({title, onPress}) => (
@@ -10,46 +10,68 @@ const Button = ({title, onPress}) => (
     <Text style={styles.button}>{title}</Text>
   </TouchableOpacity>
 );
-const Header = ({children, style}) => <Text style={[styles.header, style]}>{children}</Text>;
-const Feature = ({title, onPress, description, buttonLabel = 'PLAY', status}) => (
+
+const Feature = ({ onPress,isPlay}) => (
   <View style={styles.feature}>
-    <Header style={{flex: 1}}>{title}</Header>
-    {status ? <Text style={{padding: 5}}></Text> : null}
-    <Button title={buttonLabel} onPress={onPress} />
+   <Button title={isPlay ? "Pause" : "Play"} onPress={onPress} />
   </View>
 );
-const callback = () => {
-  AudioPlayer.play();
-    
- AudioPlayer.getDuration((duration) => {
-    console.log("duration",duration);
-  });
-  // setInterval(() => {
-  //   AudioPlayer.getCurrentTime((currentTime) => {
-  //     console.log("currentTime",currentTime);
-  //   });
-  // }, 1000);
-}
+
 class AudioFeature extends Component {
+
   static propTypes = {
-    url:  'https://sample-videos.com/audio/mp3/crowd-cheering.mp3'
+    url: PropTypes.string
   }
-  prepare=(url, curr)=>{
-    AudioPlayer.prepare(url, callback);
- // AudioPlayer.prepareWithFile('sample', 'mp3', callback);
+  static defaultProps = {
+    url: 'http://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3'
   }
+  constructor(props){
+    super(props);
+    this.state={
+      isPlay: false
+    }
+  }
+  callback = () => {
+    const {isPlay} = this.state;
+   if(isPlay === true) {
+     console.log('iffffffff');
+      AudioPlayer.play();
+       AudioPlayer.onEnd(() => {
+        AudioPlayer.stop();
+        this.setState({isPlay: false})
+      });
+    } else {
+      console.log('elseeeeee',AudioPlayer);
+      AudioPlayer.pause();
+      console.log('elseeeeee out',AudioPlayer);
+    }
+    //  AudioPlayer.getDuration((duration) => {
+    //     console.log("duration",duration);
+    //   });
+      // setInterval(() => {
+      //   AudioPlayer.getCurrentTime((currentTime) => {
+      //     console.log("currentTime",currentTime);
+      //   });
+      // }, 1000);
+
+    }
+  prepare=()=>{
+    const { url } = this.props;
+    console.log("innnnnnnnnnnn");
+     this.setState({isPlay:!this.state.isPlay},()=>{
+      AudioPlayer.prepare(url, ()=>{this.callback()});
+     })
+   }
+
   render () {
-    AudioPlayer.onEnd(() => {
-      AudioPlayer.stop();
-      console.log('on end');
-    });
+    const {isPlay} = this.state;
     return (
-      <TouchableOpacity onPress={this.props.onPress}>
+      <TouchableOpacity >
         <Feature
            key={1}
-           title={'Testttttt'}
+           isPlay= {isPlay}
            onPress={() => {
-            this.prepare(url, this);
+            this.prepare();
           }}
         />
       </TouchableOpacity>

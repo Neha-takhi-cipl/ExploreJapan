@@ -19,7 +19,18 @@ const images = {
   chevronRight: require('../Images/Icons/chevron-right.png'),
   hamburger: require('../Images/Icons/hamburger.png'),
   backButton: require('../Images/Icons/back-button.png'),
-  closeButton: require('../Images/Icons/close-button.png')
+  closeButton: require('../Images/Icons/close-button.png'),
+  listActive: require('../Images/Icons/list-selected.png'),
+  listInActive: require('../Images/Icons/list-unselected.png'),
+  imageListActive: require('../Images/Icons/image-list-selected.png'),
+  imageListInActive: require('../Images/Icons/image-list-unselected.png'),
+  helpActive: require('../Images/Icons/help-selected.png'),
+  helpInActive: require('../Images/Icons/help-unselected.png'),
+  readActive: require('../Images/Icons/read-selected.png'),
+  readInActive: require('../Images/Icons/read-unselected.png'),
+  audioActive: require('../Images/Icons/speaker.png'),
+  audioInActive: require('../Images/Icons/speaker-mute-grey.png'),
+  defaultAvatar: require('../Images/Icons/defaultAvatar.jpg')
 }
 
 export default images

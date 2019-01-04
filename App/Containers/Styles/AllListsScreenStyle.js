@@ -2,7 +2,20 @@ import { StyleSheet,Platform } from 'react-native'
 import { ApplicationStyles } from '../../Themes/'
 
 export default StyleSheet.create({
-  ...ApplicationStyles.screen
+  ...ApplicationStyles.screen,
+  imageContainer:{
+    width: 30,
+    height: 20,
+    // overflow: 'hidden',
+
+
+  },
+  imageIcon: {
+    width:'100%',
+    height: '100%',
+    resizeMode:'contain'
+  }
+
 })
 
 export const styles = StyleSheet.create({

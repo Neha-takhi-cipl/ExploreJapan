@@ -15,5 +15,10 @@ export default StyleSheet.create({
   ratingText: {
     paddingLeft: 10,
     color: 'grey'
+  },
+  centerDiv:{
+    flex: 1,
+    justifyContent: 'center',
+    alignItems:'center'
   }
   })
