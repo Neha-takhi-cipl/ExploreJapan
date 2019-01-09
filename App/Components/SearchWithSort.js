@@ -15,18 +15,7 @@ export default class SearchWithSort extends Component {
   // static defaultProps = {
   //   someSetting: false
   // }
-  constructor(props){
-    super(props);
-    this.state={
-ascDesc: 'desc'
-    }
-  }
-  handleAscDesc=()=>{
-     const {onSort} = this.props;
-    // this.setState({ascDesc: this.state.ascDesc === 'desc'? 'asc': 'desc'},()=>{
-      onSort();
-    // })
-  }
+
   render () {
     console.log("in search");
     return (
@@ -43,7 +32,7 @@ ascDesc: 'desc'
 
       </View>
       <View style={styles.sortIcon}>
-        <Icon style={styles.searchIcon} name="unfold-more" size={20} color="#000" onPress={()=>{this.handleAscDesc()}}/>
+        <Icon style={styles.searchIcon} name="unfold-more" size={20} color="#000" onPress={()=>{this.props.onSort()}}/>
       </View>
     </View>
     </View>

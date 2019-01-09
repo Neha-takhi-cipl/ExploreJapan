@@ -7,7 +7,7 @@ export function * getArticles (api,action) {
    const {lang, rpp, page, title} = action
   let reponse = {}
   response =  yield call(api.getArticles,{lang, rpp, page, title}, 10)
-
+console.log("in saga", response);
   if(!response.status){
     yield put(ArticleActions.articleFailure('No Network'));
   }

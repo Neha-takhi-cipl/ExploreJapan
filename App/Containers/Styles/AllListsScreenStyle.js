@@ -7,8 +7,6 @@ export default StyleSheet.create({
     width: 30,
     height: 20,
     // overflow: 'hidden',
-
-
   },
   imageIcon: {
     width:'100%',
