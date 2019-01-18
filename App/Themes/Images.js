@@ -28,9 +28,14 @@ const images = {
   helpInActive: require('../Images/Icons/help-unselected.png'),
   readActive: require('../Images/Icons/read-selected.png'),
   readInActive: require('../Images/Icons/read-unselected.png'),
+  readDetailsActive: require('../Images/Icons/read-detail-selected.png'),
+  readDetailsInActive: require('../Images/Icons/read-detail-unselected.png'),
   audioActive: require('../Images/Icons/speaker.png'),
   audioInActive: require('../Images/Icons/speaker-mute-grey.png'),
-  defaultAvatar: require('../Images/Icons/defaultAvatar.jpg')
+  favoriteActive: require('../Images/Icons/heart-selected.png'),
+  favoriteInActive: require('../Images/Icons/heart-unselected.png'),
+  defaultAvatar: require('../Images/Icons/defaultAvatar.jpg'),
+  tagIcon: require('../Images/Icons/tag-icon.png')
 }
 
 export default images

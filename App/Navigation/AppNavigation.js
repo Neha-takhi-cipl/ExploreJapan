@@ -1,4 +1,9 @@
 import { createStackNavigator, createAppContainer } from 'react-navigation'
+// import ArticleDetailsScreen from '../Containers/ArticleDetailsScreen'
+import TagHelpScreen from '../Containers/TagHelpScreen'
+import TagReadListScreen from '../Containers/TagReadListScreen'
+import TagImageListScreen from '../Containers/TagImageListScreen'
+import TagListScreen from '../Containers/TagListScreen'
 import HomeHelpScreen from '../Containers/HomeHelpScreen'
 import HomeReadScreen from '../Containers/HomeReadScreen'
 import HomeImageListScreen from '../Containers/HomeImageListScreen'
@@ -13,6 +18,11 @@ import styles from './Styles/NavigationStyles'
 
 // Manifest of possible screens
 const PrimaryNav = createStackNavigator({
+  //ArticleDetailsScreen: { screen: ArticleDetailsScreen },
+  TagHelpScreen: { screen: TagHelpScreen },
+  TagReadListScreen: { screen: TagReadListScreen },
+  TagImageListScreen: { screen: TagImageListScreen },
+  TagListScreen: { screen: TagListScreen },
   HomeHelpScreen: { screen: HomeHelpScreen },
   HomeReadScreen: { screen: HomeReadScreen },
   HomeImageListScreen: { screen: HomeImageListScreen },

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { ScrollView, Text, KeyboardAvoidingView,Image, View,TouchableOpacity,FlatList,ActivityIndicator } from 'react-native'
+import { ScrollView, Text, KeyboardAvoidingView,Image, View,TouchableOpacity,FlatList,ActivityIndicator, Button } from 'react-native'
+import { createSwitchNavigator, createStackNavigator, NavigationActions,createBottomTabNavigator } from 'react-navigation';
 
 import { List, ListItem} from 'react-native-elements'
 import  Constants  from '../Utils/Constants'
@@ -14,28 +15,37 @@ import _ from 'lodash';
 
 // Styles
 import styles from './Styles/HomeListScreenStyle'
+import { openDatabase } from 'react-native-sqlite-storage';
+var db = openDatabase({ name: 'ArticleDatabase.db' });
 
 class HomeListScreen extends Component {
+  static navigationOptions = {
+    title: 'Stack'
+  }
   constructor(props){
     super(props);
-    console.log("props in hlscreen", props);
-    //const allData = props.screenProps.list ? this.createData(props.screenProps.list): [];
-    this.state={
-      data: props.screenProps.allData,
-      list: props.screenProps.allData.length > 0 ? props.screenProps.allData.slice(0,Constants.LIMIT) :[],
+     this.state={
+      data: [],//props.screenProps.allData,
+      list: [],//props.screenProps.allData.length > 0 ? props.screenProps.allData.slice(0,Constants.LIMIT) :[],
       offset: 0, limit: Constants.LIMIT,
       search:'',
       currentSortOrder: 'desc',
       isFetching: false
-    }
+    },
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM table_article', [], (tx, results) => {
+        var temp = [];
+        for (let i = 0; i < results.rows.length; ++i) {
+          temp.push(results.rows.item(i));
+        }
+        this.setState({
+          data: temp,
+          list: temp.length > 0? temp.slice(0,Constants.LIMIT): []
+        });
+      });
+    });
   }
 
-componentWillReceiveProps(nextProps){
-  const {data}=  this.state;
-  if(!_.isEqual(this.props.screenProps.allData, nextProps.screenProps.allData)){
-   this.setState({data: nextProps.screenProps.allData,  list: nextProps.screenProps.allData.slice(0,Constants.LIMIT)});
-  }
-}
   handlePlayPause=(i,callback)=>{
     const { data } = this.state;
     const currStat = data[i].isPlay;
@@ -89,29 +99,41 @@ componentWillReceiveProps(nextProps){
     data.sort((a,b)=>{
       a = new Date(a.date);
       b = new Date(b.date);
-      console.log("currentSortOrder",currentSortOrder)
       if(currentSortOrder === 'desc') {
         return a>b ? -1 : a<b ? 1 : 0;
       } else {
         return a<b ? -1 : a>b ? 1 : 0;
       }
     })
-    console.log("sorted data", data)
-    this.setState({data: data ,   offset: 0,list: data.slice(0,Constants.LIMIT),limit: Constants.LIMIT, currentSortOrder: this.state.currentSortOrder === 'desc'? 'asc': 'desc'})
+    this.setState({data: data ,offset: 0,list: data.slice(0,Constants.LIMIT),limit: Constants.LIMIT, currentSortOrder: this.state.currentSortOrder === 'desc'? 'asc': 'desc'})
   }
   onRefresh=()=>{
     this.setState({ isFetching: true },this.props.screenProps.getArticles('eng','','',''));
   }
+  handleArticleDetails=(id)=>{
+
+    // const navigateAction = NavigationActions.navigate({
+    //   routeName: 'ArticleDetailsScreen',
+    //   action: NavigationActions.navigate({ params :{id: id},routeName: 'ArticleDetailsScreen'})
+    // })
+    // //this.props.navigation.setParams({ id: id });
+    //  this.props.navigation.dispatch(navigateAction);
+    this.props.navigation.navigate('ArticleDetailsScreen', {article_id: id})
+  }
+  componentWillUnmount(){
+    db.close();
+  }
   render () {
     const {data,search} = this.state;
+    console.log("data in home list screen", data);
     return (
       <View style={{flex:1}}>
      <SearchWithSort onChangeText={(searchText)=>{this.handleSearch(searchText)}} onSort={(type)=>{this.handleSort(type)}}/>
         <View style={{flex:1, flexDirection:'column', justifyContent:'center'}}>
 
            <FlatList
-           ListHeaderComponent={this.showSearchBar}
-             onEndReached={this.fetchResult}
+            ListHeaderComponent={this.showSearchBar}
+            onEndReached={this.fetchResult}
            // onEndReachedThreshold={0.9}
             ListEmptyComponent={this.emptyResult}
             style={{ width: '100%' }}
@@ -124,14 +146,15 @@ componentWillReceiveProps(nextProps){
               <ListItem
                 roundAvatar
                 avatar={item.avatar_url ? {uri:item.avatar_url} :Images.defaultAvatar}
+                //avatarStyle={{resizeMode:'contain'}}
                 key={item.id}
                 title={`${item.titleNo}. ${item.title}`}
-               onPress={()=>{alert("redirect to details")}}
+                onPress={()=>{this.handleArticleDetails(item.article_id)}}
                 subtitle={
                   <View style={styles.subtitleView}>
                     <Text style={styles.ratingText}>{`${item.date} ${item.time}`}</Text>
                     {
-                      item.isAudio && (
+                      item.isAudio ===1 && (
                       <View>
                         <TouchableOpacity>
                           <AudioPlayer url={item.audio_url} isPlay={item.isPlay} onPress={(callback)=>{this.handlePlayPause(index,callback)}}/>
@@ -151,19 +174,5 @@ componentWillReceiveProps(nextProps){
   }
 }
 
-// const mapStateToProps = (state) => {
-//   return {
-//     list : state.articles.articleList ? state.articles.articleList.data : []
-//   }
-// }
-
-// const mapDispatchToProps = (dispatch) => {
-//   return {
-//     getArticles: (lang, rpp, page, title) => {
-//       dispatch(ArticleActions.articleRequest(lang, rpp, page, title))
-//     }
-//   }
-
-// }
 
 export default HomeListScreen;

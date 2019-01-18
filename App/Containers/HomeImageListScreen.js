@@ -12,25 +12,42 @@ import _ from 'lodash'
 
 // Styles
 import styles from './Styles/HomeImageListScreenStyle'
+import { openDatabase } from 'react-native-sqlite-storage';
+var db = openDatabase({ name: 'ArticleDatabase.db' });
 
 class HomeImageListScreen extends Component {
   constructor(props){
     super(props);
    this.state={
-      data: props.screenProps.allData,
-      list: props.screenProps.allData.length > 0 ? props.screenProps.allData.slice(0,Constants.LIMIT) :[],
+      data: [],//props.screenProps.allData,
+      list: [],//props.screenProps.allData.length > 0 ? props.screenProps.allData.slice(0,Constants.LIMIT) :[],
       offset: 0, limit: Constants.LIMIT,
       isFetching: false
     }
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM table_article', [], (tx, results) => {
+        var temp = [];
+        for (let i = 0; i < results.rows.length; ++i) {
+          temp.push(results.rows.item(i));
+        }
+        this.setState({
+          data: temp,
+          list: temp.length > 0? temp.slice(0,Constants.LIMIT): []
+        });
+      });
+    });
   }
 
-  componentDidMount(){
-    this.props.screenProps.getArticles('eng','','','');
-  }
-  componentWillReceiveProps(nextProps){
-   if(!_.isEqual(this.props.screenProps.allData, nextProps.screenProps.allData)){
-      this.setState({data: nextProps.screenProps.allData,list: nextProps.screenProps.allData.slice(0,Constants.LIMIT)});
-    }
+  // componentDidMount(){
+  //   this.props.screenProps.getArticles('eng','','','');
+  // }
+  // componentWillReceiveProps(nextProps){
+  //  if(!_.isEqual(this.props.screenProps.allData, nextProps.screenProps.allData)){
+  //     this.setState({data: nextProps.screenProps.allData,list: nextProps.screenProps.allData.slice(0,Constants.LIMIT)});
+  //   }
+  // }
+  componentWillUnmount(){
+    db.close();
   }
   fetchSliceData=(data)=>{
     const {offset,limit} = this.state;

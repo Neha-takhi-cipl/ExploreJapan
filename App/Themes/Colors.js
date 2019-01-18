@@ -1,5 +1,8 @@
 const colors = {
   primaryBlue: '#617CFD',
+  primaryColor: '#617CFD',
+  primaryTextColor: '#FFFFFF',
+  secondaryColor: '#CAC9CE',
   background: '#1F0808',
   clear: 'rgba(0,0,0,0)',
   facebook: '#3b5998',

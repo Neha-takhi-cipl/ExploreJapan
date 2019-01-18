@@ -14,27 +14,44 @@ import _ from 'lodash';
 
 // Styles
 import styles from './Styles/HomeListScreenStyle'
-
+import { openDatabase } from 'react-native-sqlite-storage';
+var db = openDatabase({ name: 'ArticleDatabase.db' });
 class HomeReadScreen extends Component {
   constructor(props){
     super(props);
     console.log("props in read screen", props);
     //const allData = props.screenProps.list ? this.createData(props.screenProps.list): [];
     this.state={
-      data: props.screenProps.allData,
-      list: props.screenProps.allData.length > 0 ? props.screenProps.allData.slice(0,Constants.LIMIT) :[],
+      data: [],//props.screenProps.allData,
+      list: [],//props.screenProps.allData.length > 0 ? props.screenProps.allData.slice(0,Constants.LIMIT) :[],
       offset: 0, limit: Constants.LIMIT,
       search:'',
       currentSortOrder: 'desc',
       isFetching: false
     }
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM table_article', [], (tx, results) => {
+        var temp = [];
+        for (let i = 0; i < results.rows.length; ++i) {
+          temp.push(results.rows.item(i));
+        }
+        this.setState({
+          data: temp,
+          list: temp.length > 0? temp.slice(0,Constants.LIMIT): []
+        });
+      });
+    });
   }
 
-componentWillReceiveProps(nextProps){
-  const {data}=  this.state;
-  if(!_.isEqual(this.props.screenProps.allData, nextProps.screenProps.allData)){
-   this.setState({data: nextProps.screenProps.allData,  list: nextProps.screenProps.allData.slice(0,Constants.LIMIT)});
-  }
+
+// componentWillReceiveProps(nextProps){
+//   const {data}=  this.state;
+//   if(!_.isEqual(this.props.screenProps.allData, nextProps.screenProps.allData)){
+//    this.setState({data: nextProps.screenProps.allData,  list: nextProps.screenProps.allData.slice(0,Constants.LIMIT)});
+//   }
+// }
+componentWillUnmount(){
+  db.close();
 }
   handlePlayPause=(i,callback)=>{
     const { data } = this.state;
@@ -131,7 +148,7 @@ componentWillReceiveProps(nextProps){
                   <View style={styles.subtitleView}>
                     <Text style={styles.ratingText}>{`${item.date} ${item.time}`}</Text>
                     {
-                      item.isAudio && (
+                      item.isAudio === 1 && (
                       <View>
                         <TouchableOpacity>
                           <AudioPlayer url={item.audio_url} isPlay={item.isPlay} onPress={(callback)=>{this.handlePlayPause(index,callback)}}/>

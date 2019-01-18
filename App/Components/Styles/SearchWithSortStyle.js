@@ -24,6 +24,7 @@ const styles = EStyleSheet.create({
     margin: 10
 },
 searchIcon:{
+  padding:10
  },
 sortIcon:{
   flex:0.1,
@@ -36,7 +37,7 @@ sortIcon:{
 },
 input: {
   flex:1,
-  paddingLeft:0,
+  paddingLeft:10,
   paddingTop:10,
   paddingBottom: 10,
 }

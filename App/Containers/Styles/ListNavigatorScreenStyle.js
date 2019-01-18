@@ -5,10 +5,11 @@ export default StyleSheet.create({
   ...ApplicationStyles.screen,
 
   mainContainer:{
-    flex:1
+    flex:1,
+    position:'relative'
 
   },
   screenContainer:{
-    flex:1
-  }
+    flex:1,
+}
 })

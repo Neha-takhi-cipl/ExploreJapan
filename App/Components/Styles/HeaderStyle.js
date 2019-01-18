@@ -6,6 +6,8 @@ export default StyleSheet.create({
 
   },
   header: {
-    backgroundColor: Colors.primaryBlue
+
+    backgroundColor: Colors.primaryBlue,
+
   }
 })

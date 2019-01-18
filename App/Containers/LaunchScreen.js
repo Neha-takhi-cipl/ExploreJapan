@@ -14,7 +14,7 @@ export default class LaunchScreen extends Component {
         <ScrollView style={styles.container}>
 
           <Button
-          onPress={()=>{this.props.navigation.navigate('ListNavigatorScreen')}}
+          onPress={()=>{this.props.navigation.navigate('ArticleDetailsScreen')}}
           title="Click Me"
           color="#841584"
           accessibilityLabel="view all lists"

@@ -22,7 +22,7 @@ export default class SearchWithSort extends Component {
       <View>
       <View style={styles.inputContainer}>
         <View style={styles.searchSection}>
-          <Icon style={styles.searchIcon} name="search" size={20} color="#000"/>
+          <Icon iconStyle={styles.searchIcon} name="search" size={20} color="#000"/>
           <TextInput
               style={styles.input}
               placeholder="Type here"
