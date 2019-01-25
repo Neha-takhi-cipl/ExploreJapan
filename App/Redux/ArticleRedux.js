@@ -7,6 +7,7 @@ const { Types, Creators } = createActions({
   articleRequest: ['lang', 'rpp', 'page', 'title'],
   articleSuccess: ['list'],
   articleFailure: ['error'],
+  isHeaderShowBool: ['isHeaderShowBoolean']
   })
 
 export const ArticleTypes = Types
@@ -17,7 +18,8 @@ export default Creators
 export const INITIAL_STATE = Immutable({
   articleList: [],
   error: null,
-  fetching: false
+  fetching: false,
+  isHeaderShow: true
 })
 
 /* ------------- Reducers ------------- */
@@ -34,15 +36,16 @@ export const success = (state, {list} ) => {
 export const failure = (state, { error }) =>
   state.merge({ fetching: false, error })
 
+export const updatingShowHeader = (state,{isHeaderShowBoolean}) => state.merge({ isHeaderShow: isHeaderShowBoolean })
 // we've logged out
 // export const logout = (state) => INITIAL_STATE
-
+console.log("TYpes are :", Types);
 /* ------------- Hookup Reducers To Types ------------- */
-
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.ARTICLE_REQUEST]: request,
   [Types.ARTICLE_SUCCESS]: success,
   [Types.ARTICLE_FAILURE]: failure,
+  [Types.IS_HEADER_SHOW_BOOL]: updatingShowHeader
 })
 
 /* ------------- Selectors ------------- */

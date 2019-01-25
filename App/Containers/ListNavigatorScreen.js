@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { createMaterialTopTabNavigator,createStackNavigator, createAppContainer } from 'react-navigation';
 import HomeScreen from './HomeScreen';
 import TagsList from './TagsListScreen';
-import FavoriteList from './FavoriteListScreen';
+import FavoriteList from './FavoriteScreen';
 import Header from '../Components/Header';
 import TopTabs from '../Components/TopTabs';
 import ArticleActions from '../Redux/ArticleRedux';
@@ -35,29 +35,47 @@ export  class ListNavigatorScreen extends Component {
           if (res.rows.length == 0) {
             txn.executeSql('DROP TABLE IF EXISTS table_article', []);
             txn.executeSql(
-              'CREATE TABLE IF NOT EXISTS table_article (id INTEGER PRIMARY KEY AUTOINCREMENT, article_id INTEGER UNIQUE ON CONFLICT REPLACE, title VARCHAR(20), titleNo VARCHAR(20), date VARCHAR(20), time  VARCHAR(20), avatar_url VARCHAR(255), isAudio BOOLEAN, isPlay BOOLEAN, audio_url VARCHAR(255),type VARCHAR(20), isFavorite BOOLEAN)',
+              'CREATE TABLE IF NOT EXISTS table_article (id INTEGER PRIMARY KEY AUTOINCREMENT, article_id INTEGER UNIQUE ON CONFLICT REPLACE, title VARCHAR(20), titleNo VARCHAR(20), date VARCHAR(20), time  VARCHAR(20), avatar_url VARCHAR(255), isAudio BOOLEAN, isPlay BOOLEAN, audio_url VARCHAR(255),type VARCHAR(20), isFavorite BOOLEAN, isRead BOOLEAN)',
               []
             );
           }
         }
       );
-    });
+
+    txn.executeSql(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='table_tags'",
+      [],
+      function(tx, res) {
+        console.log('item:', res.rows.length);
+        if (res.rows.length == 0) {
+          txn.executeSql('DROP TABLE IF EXISTS table_tags', []);
+          txn.executeSql(
+            'CREATE TABLE IF NOT EXISTS table_tags (id INTEGER PRIMARY KEY AUTOINCREMENT, article_id INTEGER, title VARCHAR(20) UNIQUE ON CONFLICT REPLACE)',
+            []
+          );
+        }
+      }
+    );
+  });
+
   }
   componentDidMount(){
     this.props.getArticles('eng','','','');
    }
    createData=(data)=>{
+     console.log("rAAW DATA",data)
     const tempData = [];
     (data || []).map((item)=>{
 
       db.transaction(function(tx) {
         tx.executeSql(
-          "INSERT OR REPLACE INTO table_article (article_id, title, titleNo, date, time, avatar_url, isAudio, isPlay, audio_url, type, isFavorite) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-          [item.article_id, item.article_title , item.article_title_number, item.article_date, item.article_time, item.article_image, item.article_audio ? true : false, false, item.article_audio, item.article_type , false ],
+          "INSERT OR REPLACE INTO table_article (article_id, title, titleNo, date, time, avatar_url, isAudio, isPlay, audio_url, type, isFavorite,isRead) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+          [item.article_id, item.article_title , item.article_title_number, item.article_date, item.article_time, item.article_image, item.article_audio ? true : false, false, item.article_audio, item.article_type , false, false ],
           (tx, results) => {
-            console.log('Results', results.rowsAffected);
-            if (! results.rowsAffected > 0) {
+           if (! results.rowsAffected > 0) {
               alert('Article fetching Failed');
+            } else {
+              console.log("inserted")
             }
           }
         );
@@ -69,11 +87,10 @@ export  class ListNavigatorScreen extends Component {
    // const {data}=  this.state;
     if(!_.isEqual(this.props.list, nextProps.list)){
       this.createData(nextProps.list);
-
     }
   }
   componentWillUnmount(){
-    db.close();
+    //db.close();
   }
   render () {
     const tabsData = [
@@ -82,15 +99,16 @@ export  class ListNavigatorScreen extends Component {
       {value:3, title: 'Tags'}
     ];
     const {tabVal} = this.state;
+    const {isHeaderShow} = this.props;
+    console.log("isHeaderShow", isHeaderShow)
     return (
     <View style={styles.mainContainer} >
 
         <Header>
-            <TopTabs data={tabsData} handleTab={(val)=>{this.setState({tabVal: val})}} value={tabVal}/>
-
+           {isHeaderShow &&  <TopTabs data={tabsData} handleTab={(val)=>{this.setState({tabVal: val})}} value={tabVal}/>}
         </Header>
 
-        {tabVal === 1 && <View style={styles.screenContainer}><HomeScreen/></View>}
+        {tabVal === 1 && <View style={styles.screenContainer}><HomeScreen getArticles= {()=>{this.props.getArticles('eng','','','')}} setHeaderShow={this.props.setHeaderShow}/></View>}
         {tabVal === 2 && <View style={styles.screenContainer}><FavoriteList/></View>}
         {tabVal === 3 && <View style={styles.screenContainer}><TagsList/></View>}
 
@@ -99,8 +117,10 @@ export  class ListNavigatorScreen extends Component {
   }
 }
 const mapStateToProps = (state) => {
+  console.log("Neha Takhi states are: ", state)
   return {
-    list : state.articles.articleList ? state.articles.articleList.data: []
+    list : state.articles.articleList ? state.articles.articleList.data: [],
+    isHeaderShow: state.articles.isHeaderShow
   }
 }
 
@@ -108,7 +128,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     getArticles: (lang, rpp, page, title) => {
       dispatch(ArticleActions.articleRequest(lang, rpp, page, title))
-    }
+    },
+    setHeaderShow: (val)=>{dispatch(ArticleActions.isHeaderShowBool(val))}
   }
 
 }

@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import { createBottomTabNavigator,createStackNavigator, createAppContainer } from 'react-navigation';
 import { connect } from 'react-redux'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {  Image, View, Text ,AppRegistry} from 'react-native'
+import {  Image, View, Text } from 'react-native'
 import { Images } from '../Themes'
 import ArticleDetailsScreen from './ArticleDetailsScreen'
-import listScreen from './HomeListScreen';
-import imageListScreen from './HomeImageListScreen';
+import listScreen from './FavoriteListScreen';
+import imageListScreen from './FavoriteImageListScreen';
 import readScreen from './HomeReadScreen';
 import helpScreen from './HomeHelpScreen';
 
@@ -16,7 +16,6 @@ import helpScreen from './HomeHelpScreen';
 
 // Styles
 import styles from './Styles/AllListsScreenStyle'
-import { getArticles } from '../Sagas/ArticleSagas';
 
 const BottomTabNavigator = createBottomTabNavigator({
   List: {
@@ -86,21 +85,7 @@ const BottomTabNavigator = createBottomTabNavigator({
   },
 
 });
-const MainNavigator = createStackNavigator({ BottomTabNavigator }, { headerMode: "none" })
-const AppContainer = createAppContainer(MainNavigator);
-class MyApp extends React.Component {
 
-  render() {
-    const propsList={
-      getArticles : ()=>{this.props.getArticles},
-      setHeaderShow : () =>{this.props.setHeaderShow}
-    }
-    // StackNavigator **only** accepts a screenProps prop so we're passing
-    // initialProps through that.
-    return <AppContainer screenProps={propsList} />;
-  }
-}
-
-//AppRegistry.registerComponent('MyApp', () => MyApp);
-export default MyApp;
+const mainNavigator = createStackNavigator({ BottomTabNavigator }, { headerMode: "none" })
+export default createAppContainer(mainNavigator);
 

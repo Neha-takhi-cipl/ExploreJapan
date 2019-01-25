@@ -7,6 +7,8 @@ import AudioPlayer from '../Components/AudioPlayer'
 import SearchWithSort from '../Components/SearchWithSort'
 
 import { Images } from '../Themes'
+import { openDatabase } from 'react-native-sqlite-storage';
+var db = openDatabase({ name: 'ArticleDatabase.db' });
 
 import _ from 'lodash';
 // Add Actions - replace 'Your' with whatever your reducer is called :)
@@ -15,33 +17,36 @@ import _ from 'lodash';
 // Styles
 import styles from './Styles/TagListScreenStyle'
 
-const data= [
-  {tagName: "Tag1"},
-  {tagName: "Tag2"},
-  {tagName: "Tag3"},
-  {tagName: "Tag4"},
-  {tagName: "Tag5"},
-  {tagName: "Tag6"},
-  {tagName: "Tag7"},
-  {tagName: "Tag8"},
-  {tagName: "Tag9"},
-  {tagName: "Tag10"}
-]
 class TagListScreen extends Component {
   constructor(props){
     super(props);
-    console.log("props in hlscreen", props);
-    //const allData = props.screenProps.list ? this.createData(props.screenProps.list): [];
+     //const allData = props.screenProps.list ? this.createData(props.screenProps.list): [];
     this.state={
-      data: data,
-      list: data.length > 0 ? data.slice(0,Constants.LIMIT) :[],
+      data: [],
+      list: [],//data.length > 0 ? data.slice(0,Constants.LIMIT) :[],
       offset: 0, limit: Constants.LIMIT,
       search:'',
       currentSortOrder: 'desc',
       isFetching: false,
       dialogVisible: false,
-      currentTag: ''
+      dialogTagDeleteVisible: false,
+      currentTag: {}
     }
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM table_tags', [], (tx, results) => {
+        var temp = [];
+        for (let i = 0; i < results.rows.length; ++i) {
+          temp.push(results.rows.item(i));
+          console.log("inserting into table_tags", results.rows.item(i))
+        }
+        this.setState({
+          data: temp,
+          list: temp.length > 0? temp.slice(0,Constants.LIMIT): [],
+          offset: this.state.offset + Constants.LIMIT,
+          limit: this.state.limit + Constants.LIMIT
+        });
+      });
+    });
   }
 
 // componentWillReceiveProps(nextProps){
@@ -81,17 +86,79 @@ class TagListScreen extends Component {
     this.setState({ isFetching: true },this.props.screenProps.getArticles('eng','','',''));
   }
 
-  handleTag = (e, tagName) =>{
+  handleTag = (e, tagName, tagId) =>{
      this.setState({
        dialogVisible : true,
-       currentTag : tagName
+       currentTag : {title:tagName,id:tagId}
      })
   }
   handleCancel=()=>{
+    console.log("m clicked");
     this.setState({dialogVisible: false})
   }
+  handleTagInputChange=(e)=>{
+    const {currentTag} = this.state;
+    const temp = {...currentTag}
+    console.log("temp is before",temp,e);
+    temp.title =  e;
+    console.log("temp is",temp);
+    this.setState({
+      currentTag:temp
+    })
+  }
+  handleTagUpdate=()=>{
+    console.log("clickeddddddddddddddd",this.state.currentTag)
+    const { currentTag} = this.state;
+    this.setState({dialogVisible: false},()=>{
+      db.transaction(tx => {
+        tx.executeSql('UPDATE table_tags SET title = ? WHERE id = ?', [currentTag.title, currentTag.id ], (tx, results) => {
+          console.log("result of upsaTE",tx,results.rows.length)
+
+        });
+      });
+      db.transaction(tx => {
+        tx.executeSql('SELECT * FROM table_tags', [], (tx, results) => {
+          var temp = [];
+          for (let i = 0; i < results.rows.length; ++i) {
+            temp.push(results.rows.item(i));
+            console.log("inserting into table_tags", results.rows.item(i))
+          }
+          this.setState({
+            data: temp,
+            list: temp.length > 0? temp.slice(0,Constants.LIMIT): [],
+            offset: this.state.offset + Constants.LIMIT,
+            limit: this.state.limit + Constants.LIMIT
+          });
+        });
+      });
+    })
+  }
+  handleTagDelete = (id)=>{
+    db.transaction(tx => {
+      tx.executeSql('DELETE FROM table_tags  WHERE id = ?', [id ], (tx, results) => {
+        console.log("result of DELETE",tx,results.rows.length)
+
+      });
+    });
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM table_tags', [], (tx, results) => {
+        var temp = [];
+        for (let i = 0; i < results.rows.length; ++i) {
+          temp.push(results.rows.item(i));
+          console.log("inserting into table_tags", results.rows.item(i))
+        }
+        this.setState({
+          data: temp,
+          list: temp.length > 0? temp.slice(0,Constants.LIMIT): [],
+          offset: this.state.offset + Constants.LIMIT,
+          limit: this.state.limit + Constants.LIMIT
+        });
+      });
+    });
+
+  }
   render () {
-    const {data,search, currentTag, dialogVisible} = this.state;
+    const {data,search, currentTag, dialogVisible,dialogTagDeleteVisible} = this.state;
     return (
      <View style={{flex:1, flexDirection:'column', justifyContent:'center'}}>
 
@@ -110,20 +177,36 @@ class TagListScreen extends Component {
               <ListItem
                 avatar={Images.tagIcon}
                 avatarStyle={{resizeMode:'center', backgroundColor:'#fff'}}
-                key={item.index}
-                title={item.tagName}
-                onPress={(e)=>{this.handleTag(e,item.tagName)}}
+                key={index}
+                title={item.title}
+                chevron={false}
+                onPress={(e)=>{this.handleTag(e,item.title,item.id)}}
+            rightIcon = {
+                  <View style={styles.imageContainer}>
+                  <TouchableOpacity onPress={()=>{this.setState({dialogTagDeleteVisible: true})}}>
+                  <Dialog.Container visible={dialogTagDeleteVisible}>
+                  <Dialog.Title>Delete Tag</Dialog.Title>
+                      <Dialog.Description>
+                        Are you sure you want to delete this tag?
+                      </Dialog.Description>
+                      <Dialog.Button label="No" onPress={()=>{this.setState({dialogTagDeleteVisible: false})}} />
+                      <Dialog.Button label="Yes" onPress={()=>{this.handleTagDelete(item.id)}} />
+                  </Dialog.Container>
+                  <Image source={ Images.deleteIcon} style={styles.imageIcon}/>
+                  </TouchableOpacity>
+                  </View>
 
+            }
               />
             )}
         />
- <Dialog.Container visible={dialogVisible}>
+      <Dialog.Container visible={dialogVisible}>
+      <Dialog.Title>Rename Tag</Dialog.Title>
+        <Dialog.Input value = {currentTag.title} wrapperStyle={{ borderBottomWidth: .5, borderColor: '#000' }} onChangeText={(e)=>{this.handleTagInputChange(e)}}/>
+        <Dialog.Button label="Cancel" onPress={this.handleCancel} />
+        <Dialog.Button label="Save" onPress={this.handleTagUpdate} />
+      </Dialog.Container>
 
-          <Dialog.Input value = {currentTag} wrapperStyle={{ borderBottomWidth: .5,
-    borderColor: '#000',  }}/>
-          <Dialog.Button label="Cancel" onPress={this.handleCancel} />
-          <Dialog.Button label="Ok" onPress={this.handleCancel} />
-        </Dialog.Container>
       </View>
     )
   }

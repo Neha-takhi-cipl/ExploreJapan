@@ -44,6 +44,7 @@
     "react-native-sound": "^0.10.9",
     "react-native-splash-screen": "^3.1.1",
     "react-native-sqlite-storage": "^3.3.9",
+    "react-native-tag-autocomplete": "^1.0.21",
     "react-native-vector-icons": "6.1.0",
     "react-navigation": "3.0.0",
     "react-navigation-redux-helpers": "^2.0.6",

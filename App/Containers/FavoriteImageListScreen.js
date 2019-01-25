@@ -4,7 +4,6 @@ import { ScrollView, Text, SafeAreaView,Image, View,TouchableOpacity,FlatList,Li
 import { List, ListItem} from 'react-native-elements'
 import  Constants  from '../Utils/Constants'
 import { connect } from 'react-redux'
-import GalleryImage from '../Components/GalleryImage';
 import { Images } from '../Themes'
 import _ from 'lodash'
 // Add Actions - replace 'Your' with whatever your reducer is called :)
@@ -15,7 +14,7 @@ import styles from './Styles/HomeImageListScreenStyle'
 import { openDatabase } from 'react-native-sqlite-storage';
 var db = openDatabase({ name: 'ArticleDatabase.db' });
 
-class HomeImageListScreen extends Component {
+class FavoriteImageListScreen extends Component {
   constructor(props){
     super(props);
    this.state={
@@ -25,7 +24,7 @@ class HomeImageListScreen extends Component {
       isFetching: false
     }
     db.transaction(tx => {
-      tx.executeSql('SELECT * FROM table_article', [], (tx, results) => {
+      tx.executeSql('SELECT * FROM table_article WHERE isFavorite = ?', [true], (tx, results) => {
         var temp = [];
         for (let i = 0; i < results.rows.length; ++i) {
           temp.push(results.rows.item(i));
@@ -73,25 +72,17 @@ class HomeImageListScreen extends Component {
         <Text>
           No Data Found
         </Text>
-        </View>
+      </View>
     )
   }
   onRefresh=()=>{
     this.setState({ isFetching: true },this.props.screenProps.getArticles('eng','','',''));
   }
   handleArticleDetails=(id)=>{
-
-    // const navigateAction = NavigationActions.navigate({
-    //   routeName: 'ArticleDetailsScreen',
-    //   action: NavigationActions.navigate({ params :{id: id},routeName: 'ArticleDetailsScreen'})
-    // })
-    // //this.props.navigation.setParams({ id: id });
-    //  this.props.navigation.dispatch(navigateAction);
     this.props.navigation.navigate('ArticleDetailsScreen', {article_id: id})
   }
   render () {
     const {data} = this.state;
-    console.log("data is lis its123456",this.state.list)
 
     return (
       <SafeAreaView style={styles.container}>
@@ -108,12 +99,11 @@ class HomeImageListScreen extends Component {
             refreshing={this.state.isFetching}
             numColumns={4}
             renderItem={({item,index}) => (
-
-                  <View style={styles.imageContainer}>
-                  <TouchableOpacity onPress={()=>{this.handleArticleDetails(item.article_id)}}>
+              <View style={styles.imageContainer}>
+                <TouchableOpacity onPress={()=>{this.handleArticleDetails(item.article_id)}}>
                   <Image source={item.avatar_url ? {uri:item.avatar_url } : Images.defaultAvatar} style={styles.image}/>
-                  </TouchableOpacity>
-                  </View>
+                </TouchableOpacity>
+              </View>
 
             )}
           />
@@ -123,14 +113,4 @@ class HomeImageListScreen extends Component {
   }
 }
 
-const mapStateToProps = (state) => {
-  return {
-  }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(HomeImageListScreen)
+export default (FavoriteImageListScreen);

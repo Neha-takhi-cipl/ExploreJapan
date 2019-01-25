@@ -17,8 +17,7 @@ export default class SearchWithSort extends Component {
   // }
 
   render () {
-    console.log("in search");
-    return (
+   return (
       <View>
       <View style={styles.inputContainer}>
         <View style={styles.searchSection}>

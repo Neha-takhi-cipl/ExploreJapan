@@ -44,6 +44,7 @@ const create = (baseURL = 'http://54.210.92.147/webservices/') => {
     'page':obj.page,
     'title':obj.title
   })
+  console.log("API URI is :",api)
   // ------
   // STEP 3
   // ------

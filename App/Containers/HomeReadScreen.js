@@ -30,14 +30,16 @@ class HomeReadScreen extends Component {
       isFetching: false
     }
     db.transaction(tx => {
-      tx.executeSql('SELECT * FROM table_article', [], (tx, results) => {
+      tx.executeSql('SELECT * FROM table_article WHERE isRead = ?', [true], (tx, results) => {
         var temp = [];
         for (let i = 0; i < results.rows.length; ++i) {
           temp.push(results.rows.item(i));
         }
         this.setState({
           data: temp,
-          list: temp.length > 0? temp.slice(0,Constants.LIMIT): []
+          list: temp.length > 0? temp.slice(0,Constants.LIMIT): [],
+          offset: this.state.offset + Constants.LIMIT,
+          limit: this.state.limit + Constants.LIMIT
         });
       });
     });
@@ -51,7 +53,7 @@ class HomeReadScreen extends Component {
 //   }
 // }
 componentWillUnmount(){
-  db.close();
+  //db.close();
 }
   handlePlayPause=(i,callback)=>{
     const { data } = this.state;
@@ -119,6 +121,16 @@ componentWillUnmount(){
   onRefresh=()=>{
     this.setState({ isFetching: true },this.props.screenProps.getArticles('eng','','',''));
   }
+  handleArticleDetails=(id)=>{
+
+    // const navigateAction = NavigationActions.navigate({
+    //   routeName: 'ArticleDetailsScreen',
+    //   action: NavigationActions.navigate({ params :{id: id},routeName: 'ArticleDetailsScreen'})
+    // })
+    // //this.props.navigation.setParams({ id: id });
+    //  this.props.navigation.dispatch(navigateAction);
+    this.props.navigation.navigate('ArticleDetailsScreen', {article_id: id})
+  }
   render () {
     const {data,search} = this.state;
     return (
@@ -143,7 +155,7 @@ componentWillUnmount(){
                 avatar={item.avatar_url ? {uri:item.avatar_url} :Images.defaultAvatar}
                 key={item.id}
                 title={`${item.titleNo}. ${item.title}`}
-               onPress={()=>{alert("redirect to details")}}
+               onPress={()=>{this.handleArticleDetails(item.article_id)}}
                 subtitle={
                   <View style={styles.subtitleView}>
                     <Text style={styles.ratingText}>{`${item.date} ${item.time}`}</Text>

@@ -18,7 +18,7 @@ const images = {
   usageExamples: require('../Images/Icons/icon-usage-examples.png'),
   chevronRight: require('../Images/Icons/chevron-right.png'),
   hamburger: require('../Images/Icons/hamburger.png'),
-  backButton: require('../Images/Icons/back-button.png'),
+  backButton: require('../Images/Icons/back-arrow-blue.png'),
   closeButton: require('../Images/Icons/close-button.png'),
   listActive: require('../Images/Icons/list-selected.png'),
   listInActive: require('../Images/Icons/list-unselected.png'),
@@ -35,7 +35,8 @@ const images = {
   favoriteActive: require('../Images/Icons/heart-selected.png'),
   favoriteInActive: require('../Images/Icons/heart-unselected.png'),
   defaultAvatar: require('../Images/Icons/defaultAvatar.jpg'),
-  tagIcon: require('../Images/Icons/tag-icon.png')
+  tagIcon: require('../Images/Icons/tag-icon.png'),
+  deleteIcon: require('../Images/Icons/delete-icon.png')
 }
 
 export default images

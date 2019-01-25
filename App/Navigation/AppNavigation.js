@@ -1,4 +1,7 @@
 import { createStackNavigator, createAppContainer } from 'react-navigation'
+import FavoriteReadListScreen from '../Containers/FavoriteReadListScreen'
+import FavoriteImageListScreen from '../Containers/FavoriteImageListScreen'
+import FavoriteScreen from '../Containers/FavoriteScreen'
 // import ArticleDetailsScreen from '../Containers/ArticleDetailsScreen'
 import TagHelpScreen from '../Containers/TagHelpScreen'
 import TagReadListScreen from '../Containers/TagReadListScreen'
@@ -18,6 +21,9 @@ import styles from './Styles/NavigationStyles'
 
 // Manifest of possible screens
 const PrimaryNav = createStackNavigator({
+  FavoriteReadListScreen: { screen: FavoriteReadListScreen },
+  FavoriteImageListScreen: { screen: FavoriteImageListScreen },
+  FavoriteScreen: { screen: FavoriteScreen },
   //ArticleDetailsScreen: { screen: ArticleDetailsScreen },
   TagHelpScreen: { screen: TagHelpScreen },
   TagReadListScreen: { screen: TagReadListScreen },

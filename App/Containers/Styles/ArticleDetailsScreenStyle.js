@@ -13,5 +13,27 @@ export default StyleSheet.create({
     //left: 0,
    // width: Dimensions.get('window').width,
 
+  },
+  contentContainer:{
+
+  },
+  buttonContainer:{
+    flexDirection: 'row', justifyContent: 'space-between', flex: 1,
+    left: 15,
+    position: 'absolute',
+    right: 10,
+    top: Dimensions.get('window').height -190,
+    zIndex: 1
+  },
+  singleButton:{
+    width: 50, height: 50
+  },
+  autocompleteContainer: {
+    flex: 1,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: Dimensions.get('window').height -250,
+
   }
 })

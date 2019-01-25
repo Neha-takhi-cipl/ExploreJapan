@@ -19,11 +19,10 @@ import { openDatabase } from 'react-native-sqlite-storage';
 var db = openDatabase({ name: 'ArticleDatabase.db' });
 
 class HomeListScreen extends Component {
-  static navigationOptions = {
-    title: 'Stack'
-  }
+
   constructor(props){
     super(props);
+    console.log("this props", props)
      this.state={
       data: [],//props.screenProps.allData,
       list: [],//props.screenProps.allData.length > 0 ? props.screenProps.allData.slice(0,Constants.LIMIT) :[],
@@ -40,7 +39,9 @@ class HomeListScreen extends Component {
         }
         this.setState({
           data: temp,
-          list: temp.length > 0? temp.slice(0,Constants.LIMIT): []
+          list: temp.length > 0? temp.slice(0,Constants.LIMIT): [],
+          offset: this.state.offset + Constants.LIMIT,
+          limit: this.state.limit + Constants.LIMIT
         });
       });
     });
@@ -63,13 +64,16 @@ class HomeListScreen extends Component {
   }
   fetchSliceData=(data)=>{
     const {offset,limit} = this.state;
+    console.log("offset,limit",offset,limit);
     return data.slice(offset,limit);
   }
   fetchResult=()=>{
+
     const {offset,limit,list,data} = this.state;
-    console.log("fetching",offset,limit,data)
+    console.log("on end reached flat list",offset,limit,list,data)
     if(offset < data.length) {
     const chunkedData = this.fetchSliceData(data);
+    console.log("chunked data", chunkedData)
     this.setState({
         list: list.concat(chunkedData),
         offset: offset + Constants.LIMIT,
@@ -108,37 +112,31 @@ class HomeListScreen extends Component {
     this.setState({data: data ,offset: 0,list: data.slice(0,Constants.LIMIT),limit: Constants.LIMIT, currentSortOrder: this.state.currentSortOrder === 'desc'? 'asc': 'desc'})
   }
   onRefresh=()=>{
-    this.setState({ isFetching: true },this.props.screenProps.getArticles('eng','','',''));
+    console.log("this props====>", this.props)
+    this.setState({ isFetching: false },this.props.screenProps.getArticles('eng','','',''));
   }
   handleArticleDetails=(id)=>{
-
-    // const navigateAction = NavigationActions.navigate({
-    //   routeName: 'ArticleDetailsScreen',
-    //   action: NavigationActions.navigate({ params :{id: id},routeName: 'ArticleDetailsScreen'})
-    // })
-    // //this.props.navigation.setParams({ id: id });
-    //  this.props.navigation.dispatch(navigateAction);
     this.props.navigation.navigate('ArticleDetailsScreen', {article_id: id})
   }
+
   componentWillUnmount(){
-    db.close();
+    //db.close();
   }
   render () {
-    const {data,search} = this.state;
-    console.log("data in home list screen", data);
-    return (
+    const {data,search, list} = this.state;
+    console.log("HomeListScreen: list is",list,this.state.isFetching);
+   return (
       <View style={{flex:1}}>
      <SearchWithSort onChangeText={(searchText)=>{this.handleSearch(searchText)}} onSort={(type)=>{this.handleSort(type)}}/>
         <View style={{flex:1, flexDirection:'column', justifyContent:'center'}}>
 
-           <FlatList
+          {list.length > 0 &&  <FlatList
             ListHeaderComponent={this.showSearchBar}
             onEndReached={this.fetchResult}
-           // onEndReachedThreshold={0.9}
             ListEmptyComponent={this.emptyResult}
             style={{ width: '100%' }}
             keyExtractor={(item, index) => index.toString()}
-            data={this.state.list}
+            data={list}
             onRefresh={() => this.onRefresh()}
             refreshing={this.state.isFetching}
 
@@ -150,6 +148,7 @@ class HomeListScreen extends Component {
                 key={item.id}
                 title={`${item.titleNo}. ${item.title}`}
                 onPress={()=>{this.handleArticleDetails(item.article_id)}}
+
                 subtitle={
                   <View style={styles.subtitleView}>
                     <Text style={styles.ratingText}>{`${item.date} ${item.time}`}</Text>
@@ -167,7 +166,7 @@ class HomeListScreen extends Component {
               />
             )}
         />
-
+      }
       </View>
       </View>
     )
