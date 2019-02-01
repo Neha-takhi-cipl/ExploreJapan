@@ -1,8 +1,7 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { createBottomTabNavigator,createStackNavigator, createAppContainer } from 'react-navigation';
-import { connect } from 'react-redux'
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import {  Image, View, Text ,AppRegistry} from 'react-native'
+
+import {  Image, View} from 'react-native'
 import { Images } from '../Themes'
 import ArticleDetailsScreen from './ArticleDetailsScreen'
 import listScreen from './HomeListScreen';
@@ -16,7 +15,6 @@ import helpScreen from './HomeHelpScreen';
 
 // Styles
 import styles from './Styles/AllListsScreenStyle'
-import { getArticles } from '../Sagas/ArticleSagas';
 
 const BottomTabNavigator = createBottomTabNavigator({
   List: {
@@ -93,8 +91,9 @@ class MyApp extends React.Component {
   render() {
     const propsList={
       getArticles : ()=>{this.props.getArticles},
-      setHeaderShow : () =>{this.props.setHeaderShow}
+      setHeaderShow : () =>{this.props.setHeader}
     }
+    console.log("hiiiiii", this.props);
     // StackNavigator **only** accepts a screenProps prop so we're passing
     // initialProps through that.
     return <AppContainer screenProps={propsList} />;

@@ -1,153 +1,209 @@
 import React, { Component } from 'react'
-import { ScrollView, Text, KeyboardAvoidingView ,View} from 'react-native'
+import { TouchableOpacity, Text, View, WebView } from 'react-native'
 
 // Add Actions - replace 'Your' with whatever your reducer is called :)
 // import YourActions from '../Redux/YourRedux'
 import Header from '../Components/Header';
+import AudioPlayer from '../Components/AudioPlayer'
 import ButtonWithIcon from '../Components/ButtonWithIcon';
 import AutoTags from 'react-native-tag-autocomplete';
 // Styles
 import styles from './Styles/ArticleDetailsScreenStyle'
 import { openDatabase } from 'react-native-sqlite-storage';
+import { decodeHtmlEntity } from '../Utils/CommonFunctions'
 var db = openDatabase({ name: 'ArticleDatabase.db' });
 
 class ArticleDetailsScreen extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
-    console.log("Props in Article details screen",props)
-   this.state={
+    this.state = {
       data: [],//props.screenProps.allData,
       isFavClicked: false,
       isTagClicked: false,
       isReadClicked: false,
-      suggestions : [ {name:'Mickey Mouse'}],
-    tagsSelected : [],
-    showAutosuggestTag: false
+      suggestions: [],
+      tagsSelected: [],
+      showAutosuggestTag: false, articleTags: [],
+      isPlay: false
     }
-    if(this.props.navigation.state.params.article_id){
+    if (this.props.navigation.state.params.article_id) {
 
       db.transaction(tx => {
         tx.executeSql('SELECT * FROM table_article WHERE article_id = ?', [this.props.navigation.state.params.article_id], (tx, results) => {
-          console.log("results",tx,results.rows.length)
+          console.log("results", tx, results.rows.length)
           this.setState({
             data: results.rows.item(0),
             isFavClicked: results.rows.item(0).isFavorite !== 1 ? false : true,
-           isReadClicked: results.rows.item(0).isRead !== 1 ? false : true,
+            isReadClicked: results.rows.item(0).isRead !== 1 ? false : true,
           });
         });
       });
-      // db.transaction(tx => {
-      //   tx.executeSql('SELECT * FROM table_tags', [], (tx, results) => {
-      //   this.setState({
-      //       data: results.rows.item(0),
-      //       isFavClicked: results.rows.item(0).isFavorite !== 1 ? false : true,
-      //      isReadClicked: results.rows.item(0).isRead !== 1 ? false : true,
-      //     });
-      //   });
-      // });
+      db.transaction(tx => {
+        tx.executeSql('SELECT * FROM table_tags WHERE article_id = ?', [this.props.navigation.state.params.article_id], (tx, results) => {
+          var temp = [];
+          for (let i = 0; i < results.rows.length; ++i) {
+            temp.push(results.rows.item(i));
+
+          }
+          this.setState({
+            articleTags: temp,
+
+          });
+        });
+      });
+      db.transaction(tx => {
+        tx.executeSql('SELECT distinct(title) FROM table_tags', [], (tx, results) => {
+          var temp = [];
+          for (let i = 0; i < results.rows.length; ++i) {
+            temp.push({ 'name': results.rows.item(i).title });
+          }
+          this.setState({
+            suggestions: temp,
+
+          });
+        });
+      });
+
     }
   }
-  componentDidMount(){
-    console.log("calling setHeaderShow...........")
+  componentDidMount() {
     this.props.screenProps.setHeaderShow(false);
+
   }
-  handleBack=()=>{
+  handleBack = () => {
+    this.props.navigation.state.params.updateData();
     this.props.navigation.goBack();
   }
   handleDelete = index => {
     let tagsSelected = this.state.tagsSelected;
     tagsSelected.splice(index, 1);
     this.setState({ tagsSelected });
- }
+  }
 
- handleAddition = suggestion => {
+  handleAddition = suggestion => {
     this.setState({ tagsSelected: this.state.tagsSelected.concat([suggestion]) });
- }
-  handleTag=()=>{
+  }
+  handleTag = () => {
     this.setState({
       showAutosuggestTag: true
     })
   }
-  handleRead=()=>{
-    const {isReadClicked} = this.state;
+  handleRead = () => {
+    const { isReadClicked } = this.state;
     this.setState({
-      isReadClicked:!isReadClicked
+      isReadClicked: !isReadClicked
     })
     db.transaction(tx => {
-      tx.executeSql('UPDATE table_article SET isRead = ? WHERE article_id = ?', [!isReadClicked,this.props.navigation.state.params.article_id ], (tx, results) => {
-        console.log("result of upsaTE",tx,results.rows.length)
-
+      tx.executeSql('UPDATE table_article SET isRead = ? WHERE article_id = ?', [!isReadClicked, this.props.navigation.state.params.article_id], (tx, results) => {
       });
     });
   }
-  handleFavorite=()=>{
-    const {isFavClicked} = this.state;
+  handleFavorite = () => {
+    const { isFavClicked } = this.state;
     this.setState({
       isFavClicked: !isFavClicked
     })
     db.transaction(tx => {
       tx.executeSql('UPDATE table_article SET isFavorite = ?  WHERE article_id = ?', [!isFavClicked, this.props.navigation.state.params.article_id], (tx, results) => {
-        if (! results.rowsAffected > 0) {
+        if (!results.rowsAffected > 0) {
           alert('Article fetching Failed');
-        } else {
-          console.log("updated")
         }
       });
     });
   }
-  handleSubmit=(e)=>{
-   const tempTags= [...this.state.tagsSelected];
-    tempTags.push({'name':e})
+  handleSubmit = (e) => {
+    const tempTags = [...this.state.tagsSelected];
+    tempTags.push({ 'name': e })
 
-    this.setState({ tagsSelected:tempTags  }, ()=>{
+    this.setState({ tagsSelected: tempTags }, () => {
       db.transaction(tx => {
-        tx.executeSql('INSERT INTO table_tags (article_id, title) VALUES(?,?)', [ this.props.navigation.state.params.article_id, e], (tx, results) => {
-          if (! results.rowsAffected > 0) {
+        tx.executeSql('INSERT INTO table_tags (article_id, title) VALUES(?,?)', [this.props.navigation.state.params.article_id, e], (tx, results) => {
+          if (!results.rowsAffected > 0) {
             alert('Article fetching Failed');
-          } else {
-            console.log("inserted")
           }
         });
       });
     });
   }
-  render () {
-    const {data,isFavClicked,isReadClicked, showAutosuggestTag} = this.state;
-    console.log("Props in Article details screen render",this.props)
+  showTags() {
+    const { articleTags } = this.state;
     return (
-      <View style={styles.container}>
-        <Header>
-          <Text h2> {`${data.titleNo}. ${data.title}`}</Text>
-          <Text h3>Article tags will come here</Text>
-        </Header>
-        <View style={styles.contentContainer}>
-          <Text>
-          Neha Takhi Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-          </Text>
+      articleTags.map((item, i) => {
+        return (
+          <View key={i} style={styles.tagContainer}>{item &&
+            <View><Text style={styles.tags}>{item.title}</Text>
+            </View>}
+          </View>)
+      })
+    )
+  }
+  handlePlayPause = (callback) => {
+    this.setState({ isPlay: !this.state.isPlay }, () => { callback() });
+  }
+  showDescription = (str) => {
+    var base64Code = atob(str);
+    var htmlCode = decodeHtmlEntity(base64Code);
+    return htmlCode;
+  }
+  render() {
+    const { data, isFavClicked, isReadClicked, showAutosuggestTag, isPlay, suggestions } = this.state;
+    return (
+      // <View style={styles.contentContainer}>
+      //    
+      //     <View style={{ height: 200 }}>
+      //       <WebView
+      //         automaticallyAdjustContentInsets={false}
+      //         source={{ uri: 'https://player.vimeo.com/video/24156534?title=0&byline=0&portrait=0' }}
+      //         javaScriptEnabled={false}
+      //       />
+      //     </View>
+
+      //   </View>
+      <View style={styles.maincontainer}>
+        <View style={styles.headerView}>
+          <Header>
+            <Text style={styles.headingColor} h2> {`${data.titleNo}. ${data.title}`}</Text>
+            {
+              this.showTags()
+            }
+            <View>
+              <TouchableOpacity>
+                <AudioPlayer url={data.audio_url} isPlay={isPlay} onPress={(callback) => { this.handlePlayPause(callback) }} />
+              </TouchableOpacity>
+            </View>
+          </Header>
         </View>
+
+
+        {data.description && <WebView
+          source={{
+            html: this.showDescription(data.description)
+          }}
+          automaticallyAdjustContentInsets={false}
+        />}
         {
           showAutosuggestTag &&
           <View
           //style={styles.autocompleteContainer}
           >
             <AutoTags
-            suggestions={this.state.suggestions}
-            tagsSelected={this.state.tagsSelected}
-            handleAddition={this.handleAddition}
-            handleDelete={this.handleDelete}
-            onCustomTagCreated={this.handleSubmit}
-            placeholder="Type here.."
-            style={{width:'100%'}}/>
+              suggestions={this.state.suggestions}
+              tagsSelected={this.state.tagsSelected}
+              handleAddition={this.handleAddition}
+              handleDelete={this.handleDelete}
+              onCustomTagCreated={this.handleSubmit}
+              createTagOnSpace={this.handleSubmit}
+              placeholder="Type here.."
+              style={{ width: '100%' }} />
           </View>
         }
         <View style={styles.buttonContainer}>
-
-            <ButtonWithIcon iconName="backButton" onPress={()=>{this.handleBack()}} style={styles.singleButton}/>
-            <ButtonWithIcon iconName= "tagIcon" onPress={this.handleTag} style={styles.singleButton}/>
-            <ButtonWithIcon iconName={isReadClicked ? "readDetailsActive": "readDetailsInActive"} onPress={()=>{this.handleRead()}} style={styles.singleButton}/>
-            <ButtonWithIcon iconName={isFavClicked ? "favoriteActive": "favoriteInActive"} onPress={()=>{this.handleFavorite()}} style={styles.singleButton}/>
-           </View>
-      </View>
+          <ButtonWithIcon iconName="backButton" onPress={() => { this.handleBack() }} style={styles.singleButton} />
+          <ButtonWithIcon iconName="tagIcon" onPress={this.handleTag} style={styles.singleButton} />
+          <ButtonWithIcon iconName={isReadClicked ? "readDetailsActive" : "readDetailsInActive"} onPress={() => { this.handleRead() }} style={styles.singleButton} />
+          <ButtonWithIcon iconName={isFavClicked ? "favoriteActive" : "favoriteInActive"} onPress={() => { this.handleFavorite() }} style={styles.singleButton} />
+        </View>
+      </View >
     )
   }
 }

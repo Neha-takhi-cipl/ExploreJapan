@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { ScrollView, Text, KeyboardAvoidingView,Image, View,TouchableOpacity,FlatList,ActivityIndicator } from 'react-native'
+import { ScrollView, Text, KeyboardAvoidingView, Image, View, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native'
 
-import { List, ListItem} from 'react-native-elements'
-import  Constants  from '../Utils/Constants'
+import { List, ListItem } from 'react-native-elements'
+import Constants from '../Utils/Constants'
 import AudioPlayer from '../Components/AudioPlayer'
 import SearchWithSort from '../Components/SearchWithSort'
 
@@ -17,27 +17,27 @@ import styles from './Styles/HomeListScreenStyle'
 import { openDatabase } from 'react-native-sqlite-storage';
 var db = openDatabase({ name: 'ArticleDatabase.db' });
 class FavoriteReadListScreen extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
-    console.log("props in read screen", props);
     //const allData = props.screenProps.list ? this.createData(props.screenProps.list): [];
-    this.state={
+    this.state = {
       data: [],//props.screenProps.allData,
       list: [],//props.screenProps.allData.length > 0 ? props.screenProps.allData.slice(0,Constants.LIMIT) :[],
       offset: 0, limit: Constants.LIMIT,
-      search:'',
+      search: '',
       currentSortOrder: 'desc',
       isFetching: false
     }
     db.transaction(tx => {
-      tx.executeSql('SELECT * FROM table_article WHERE isRead = ? AND isFavorite = ?', [true, true], (tx, results) => {
+      tx.executeSql('SELECT * FROM table_article WHERE (isRead = ? AND isFavorite = ?)', [true, true], (tx, results) => {
         var temp = [];
         for (let i = 0; i < results.rows.length; ++i) {
           temp.push(results.rows.item(i));
         }
+        console.log("Neha Takhi", temp)
         this.setState({
           data: temp,
-          list: temp.length > 0? temp.slice(0,Constants.LIMIT): [],
+          list: temp.length > 0 ? temp.slice(0, Constants.LIMIT) : [],
           offset: this.state.offset + Constants.LIMIT,
           limit: this.state.limit + Constants.LIMIT
         });
@@ -46,95 +46,94 @@ class FavoriteReadListScreen extends Component {
   }
 
 
-// componentWillReceiveProps(nextProps){
-//   const {data}=  this.state;
-//   if(!_.isEqual(this.props.screenProps.allData, nextProps.screenProps.allData)){
-//    this.setState({data: nextProps.screenProps.allData,  list: nextProps.screenProps.allData.slice(0,Constants.LIMIT)});
-//   }
-// }
-componentWillUnmount(){
-  //db.close();
-}
-  handlePlayPause=(i,callback)=>{
+  // componentWillReceiveProps(nextProps){
+  //   const {data}=  this.state;
+  //   if(!_.isEqual(this.props.screenProps.allData, nextProps.screenProps.allData)){
+  //    this.setState({data: nextProps.screenProps.allData,  list: nextProps.screenProps.allData.slice(0,Constants.LIMIT)});
+  //   }
+  // }
+  componentWillUnmount() {
+    //db.close();
+  }
+  handlePlayPause = (i, callback) => {
     const { data } = this.state;
     const currStat = data[i].isPlay;
-    data.map((d,innerI)=>{
-        if(i === innerI){
-          data[i].isPlay= !data[i].isPlay;
-        } else {
-        if(currStat === false){
-          data[innerI].isPlay= false;
+    data.map((d, innerI) => {
+      if (i === innerI) {
+        data[i].isPlay = !data[i].isPlay;
+      } else {
+        if (currStat === false) {
+          data[innerI].isPlay = false;
         }
       }
     })
     //data[i].isPlay= !data[i].isPlay;
-    this.setState({data: data},()=>{callback()});
+    this.setState({ data: data }, () => { callback() });
   }
-  fetchSliceData=(data)=>{
-    const {offset,limit} = this.state;
-    return data.slice(offset,limit);
+  fetchSliceData = (data) => {
+    const { offset, limit } = this.state;
+    return data.slice(offset, limit);
   }
-  fetchResult=()=>{
-    const {offset,limit,list,data} = this.state;
-    console.log("fetching",offset,limit,data)
-    if(offset < data.length) {
-    const chunkedData = this.fetchSliceData(data);
-    this.setState({
+  fetchResult = () => {
+    const { offset, limit, list, data } = this.state;
+    if (offset < data.length) {
+      const chunkedData = this.fetchSliceData(data);
+      this.setState({
         list: list.concat(chunkedData),
         offset: offset + Constants.LIMIT,
         limit: limit + Constants.LIMIT
-    });
-   }
+      });
+    }
   }
-  emptyResult=()=>{
-    return(
+  emptyResult = () => {
+    return (
       <View style={styles.centerDiv}>
         <Text>
-        No Data Found
+          No Data Found
         </Text>
-        </View>
+      </View>
     )
   }
-  handleSearch=(searchText)=>{
-    const {data, list} = this.state;
-    const filterData = data.filter((item,i)=> {
-       return (item['title'].toLowerCase().search(searchText.toLowerCase()) !== -1)
+  handleSearch = (searchText) => {
+    const { data, list } = this.state;
+    const filterData = data.filter((item, i) => {
+      return (item['title'].toLowerCase().search(searchText.toLowerCase()) !== -1)
     });
-   this.setState({list: filterData,search:searchText})
+    this.setState({ list: filterData, search: searchText })
   }
 
-  handleSort=()=>{
-    const {data,currentSortOrder} = this.state;
-    data.sort((a,b)=>{
+  handleSort = () => {
+    const { data, currentSortOrder } = this.state;
+    data.sort((a, b) => {
       a = new Date(a.date);
       b = new Date(b.date);
-      console.log("currentSortOrder",currentSortOrder)
-      if(currentSortOrder === 'desc') {
-        return a>b ? -1 : a<b ? 1 : 0;
+      if (currentSortOrder === 'desc') {
+        return a > b ? -1 : a < b ? 1 : 0;
       } else {
-        return a<b ? -1 : a>b ? 1 : 0;
+        return a < b ? -1 : a > b ? 1 : 0;
       }
     })
     console.log("sorted data", data)
-    this.setState({data: data ,   offset: 0,list: data.slice(0,Constants.LIMIT),limit: Constants.LIMIT, currentSortOrder: this.state.currentSortOrder === 'desc'? 'asc': 'desc'})
+    this.setState({ data: data, offset: 0, list: data.slice(0, Constants.LIMIT), limit: Constants.LIMIT, currentSortOrder: this.state.currentSortOrder === 'desc' ? 'asc' : 'desc' })
   }
-  onRefresh=()=>{
-    this.setState({ isFetching: true },this.props.screenProps.getArticles('eng','','',''));
+  onRefresh = () => {
+    this.setState({ isFetching: true }, this.props.screenProps.getArticles('eng', '', '', ''));
   }
-  handleArticleDetails=(id)=>{
-    this.props.navigation.navigate('ArticleDetailsScreen', {article_id: id})
+  handleArticleDetails = (id) => {
+    this.props.navigation.navigate('ArticleDetailsScreen', { article_id: id })
   }
-  render () {
-    const {data,search} = this.state;
+  render() {
+    const { data, search, list } = this.state;
+    console.log("list is in fav read", list)
     return (
-      <View style={{flex:1}}>
-     <SearchWithSort onChangeText={(searchText)=>{this.handleSearch(searchText)}} onSort={(type)=>{this.handleSort(type)}}/>
-        <View style={{flex:1, flexDirection:'column', justifyContent:'center'}}>
+      <View style={{ flex: 1 }}>
+        <SearchWithSort onChangeText={(searchText) => { this.handleSearch(searchText) }} onSort={(type) => { this.handleSort(type) }} />
+        <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}>
 
-           <FlatList
-           ListHeaderComponent={this.showSearchBar}
-             onEndReached={this.fetchResult}
-           // onEndReachedThreshold={0.9}
+          <FlatList
+            ListHeaderComponent={this.showSearchBar}
+            onEndReached={this.fetchResult}
+            // onEndReachedThreshold={0.9}
             ListEmptyComponent={this.emptyResult}
             style={{ width: '100%' }}
             keyExtractor={(item, index) => index.toString()}
@@ -142,32 +141,32 @@ componentWillUnmount(){
             onRefresh={() => this.onRefresh()}
             refreshing={this.state.isFetching}
 
-            renderItem={({item,index}) => (
+            renderItem={({ item, index }) => (
               <ListItem
                 roundAvatar
-                avatar={item.avatar_url ? {uri:item.avatar_url} :Images.defaultAvatar}
+                avatar={item.avatar_url ? { uri: item.avatar_url } : Images.defaultAvatar}
                 key={item.id}
                 title={`${item.titleNo}. ${item.title}`}
-               onPress={()=>{this.handleArticleDetails(item.article_id)}}
+                onPress={() => { this.handleArticleDetails(item.article_id) }}
                 subtitle={
                   <View style={styles.subtitleView}>
                     <Text style={styles.ratingText}>{`${item.date} ${item.time}`}</Text>
                     {
                       item.isAudio === 1 && (
-                      <View>
-                        <TouchableOpacity>
-                          <AudioPlayer url={item.audio_url} isPlay={item.isPlay} onPress={(callback)=>{this.handlePlayPause(index,callback)}}/>
-                        </TouchableOpacity>
-                      </View>
+                        <View>
+                          <TouchableOpacity>
+                            <AudioPlayer url={item.audio_url} isPlay={item.isPlay} onPress={(callback) => { this.handlePlayPause(index, callback) }} />
+                          </TouchableOpacity>
+                        </View>
                       )
                     }
                   </View>
                 }
               />
             )}
-        />
+          />
 
-      </View>
+        </View>
       </View>
     )
   }

@@ -5,9 +5,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {  Image, View, Text } from 'react-native'
 import { Images } from '../Themes'
 import listScreen from './TagListScreen';
-import imageListScreen from './TagImageListScreen';
-import readScreen from './TagReadListScreen';
-import helpScreen from './TagHelpScreen';
+import imageListScreen from './HomeImageListScreen';
+import readScreen from './HomeReadScreen';
+import helpScreen from './HomeHelpScreen';
 import ArticleActions from '../Redux/ArticleRedux';
 
 import _ from 'lodash';

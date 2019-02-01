@@ -4,10 +4,10 @@
  *
  * @returns {String}
  */
-export const  getMobileOperatingSystem=()=> {
-  var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+export const getMobileOperatingSystem = () => {
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
-      // Windows Phone must come first because its UA also contains "Android"
+    // Windows Phone must come first because its UA also contains "Android"
     if (/windows phone/i.test(userAgent)) {
         return "Windows Phone";
     }
@@ -24,3 +24,8 @@ export const  getMobileOperatingSystem=()=> {
     return "unknown";
 }
 
+export const decodeHtmlEntity = (str) => {
+    return str.replace(/&#(\d+);/g, function (match, dec) {
+        return String.fromCharCode(dec);
+    });
+}

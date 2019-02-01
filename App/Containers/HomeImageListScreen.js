@@ -77,7 +77,7 @@ class HomeImageListScreen extends Component {
     )
   }
   onRefresh=()=>{
-    this.setState({ isFetching: true },this.props.screenProps.getArticles('eng','','',''));
+    this.setState({ isFetching: false },this.props.screenProps.getArticles('eng','','',''));
   }
   handleArticleDetails=(id)=>{
 

@@ -1,31 +1,40 @@
 import { StyleSheet } from 'react-native'
 import { ApplicationStyles } from '../../Themes/'
+import { Metrics, Colors, Fonts } from '../../Themes'
 import Dimensions from 'Dimensions';
 export default StyleSheet.create({
   ...ApplicationStyles.screen,
-  container:{
-   position:'relative'
+  container: {
+    position: 'relative'
   },
-  innerContainer:{
-    //position: 'absolute',
-    //zIndex:999999999,
-    //top: -10,
-    //left: 0,
-   // width: Dimensions.get('window').width,
-
+  maincontainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'stretch'
   },
-  contentContainer:{
-
+  headerView: { width: '100%' },
+  header: {
+    margin: 10
   },
-  buttonContainer:{
+  contentContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  webView: {
+    flex: 1
+  },
+  buttonContainer: {
     flexDirection: 'row', justifyContent: 'space-between', flex: 1,
     left: 15,
     position: 'absolute',
     right: 10,
-    top: Dimensions.get('window').height -190,
+    top: Dimensions.get('window').height - 190,
     zIndex: 1
   },
-  singleButton:{
+  singleButton: {
     width: 50, height: 50
   },
   autocompleteContainer: {
@@ -33,7 +42,19 @@ export default StyleSheet.create({
     left: 0,
     position: 'absolute',
     right: 0,
-    top: Dimensions.get('window').height -250,
+    top: Dimensions.get('window').height - 250,
 
+  },
+  tagContainer: {
+    flex: 1, flexDirection: 'row'
+  },
+  tags: {
+    backgroundColor: Colors.white,
+    width: 'auto', height: 50
+  },
+  headingColor: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: 14
   }
 })

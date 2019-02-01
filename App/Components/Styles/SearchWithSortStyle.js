@@ -40,7 +40,18 @@ input: {
   paddingLeft:10,
   paddingTop:10,
   paddingBottom: 10,
+},
+imageContainer:{
+  width: 30,
+  height: 20,
+  // overflow: 'hidden',
+},
+imageIcon: {
+  width:'100%',
+  height: '100%',
+  resizeMode:'contain'
 }
+
 
 })
 export default styles;

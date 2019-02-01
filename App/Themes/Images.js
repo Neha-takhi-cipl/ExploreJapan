@@ -36,7 +36,9 @@ const images = {
   favoriteInActive: require('../Images/Icons/heart-unselected.png'),
   defaultAvatar: require('../Images/Icons/defaultAvatar.jpg'),
   tagIcon: require('../Images/Icons/tag-icon.png'),
-  deleteIcon: require('../Images/Icons/delete-icon.png')
+  deleteIcon: require('../Images/Icons/delete-icon.png'),
+  sortIcon: require('../Images/Icons/sort-icon.png')
+
 }
 
 export default images
