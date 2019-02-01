@@ -13,7 +13,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'stretch'
   },
-  headerView: { width: '100%' },
+  headerView: { width: '100%', height: 'auto', backgroundColor: Colors.primaryBlue },
   header: {
     margin: 10
   },
@@ -46,10 +46,14 @@ export default StyleSheet.create({
 
   },
   tagContainer: {
-    flex: 1, flexDirection: 'row'
+    flex: 1
   },
   tags: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     backgroundColor: Colors.white,
+    opacity: 0.5,
     width: 'auto', height: 50
   },
   headingColor: {

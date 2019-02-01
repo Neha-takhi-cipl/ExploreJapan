@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { TouchableOpacity, Text, View, WebView } from 'react-native'
+import { Buffer } from 'buffer';
 
 // Add Actions - replace 'Your' with whatever your reducer is called :)
 // import YourActions from '../Redux/YourRedux'
@@ -10,7 +11,9 @@ import AutoTags from 'react-native-tag-autocomplete';
 // Styles
 import styles from './Styles/ArticleDetailsScreenStyle'
 import { openDatabase } from 'react-native-sqlite-storage';
-import { decodeHtmlEntity } from '../Utils/CommonFunctions'
+import { encodeHtmlEntity, decode_base64, decodeHtmlEntity } from '../Utils/CommonFunctions';
+import atob from 'base-64';
+
 var db = openDatabase({ name: 'ArticleDatabase.db' });
 
 class ArticleDetailsScreen extends Component {
@@ -30,7 +33,6 @@ class ArticleDetailsScreen extends Component {
 
       db.transaction(tx => {
         tx.executeSql('SELECT * FROM table_article WHERE article_id = ?', [this.props.navigation.state.params.article_id], (tx, results) => {
-          console.log("results", tx, results.rows.length)
           this.setState({
             data: results.rows.item(0),
             isFavClicked: results.rows.item(0).isFavorite !== 1 ? false : true,
@@ -141,24 +143,17 @@ class ArticleDetailsScreen extends Component {
     this.setState({ isPlay: !this.state.isPlay }, () => { callback() });
   }
   showDescription = (str) => {
-    var base64Code = atob(str);
-    var htmlCode = decodeHtmlEntity(base64Code);
+
+    //base64_encode(html_entity_decode($value['ArticleText']))
+    const userData = Buffer.from(str, 'base64').toString();
+    console.log("b64", userData)
+    //var base64Code = decode_base64(str);
+    var htmlCode = decodeHtmlEntity(userData);
     return htmlCode;
   }
   render() {
     const { data, isFavClicked, isReadClicked, showAutosuggestTag, isPlay, suggestions } = this.state;
     return (
-      // <View style={styles.contentContainer}>
-      //    
-      //     <View style={{ height: 200 }}>
-      //       <WebView
-      //         automaticallyAdjustContentInsets={false}
-      //         source={{ uri: 'https://player.vimeo.com/video/24156534?title=0&byline=0&portrait=0' }}
-      //         javaScriptEnabled={false}
-      //       />
-      //     </View>
-
-      //   </View>
       <View style={styles.maincontainer}>
         <View style={styles.headerView}>
           <Header>
